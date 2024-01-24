@@ -2,8 +2,14 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import { createRouterGuard } from './guard';
 import LayoutComponent from '../layout/LayoutComponent.vue';
 import ListView from '../views/ListView.vue';
-import DetailView from '../views/DetailView.vue';
 import DetailSubView from '../views/DetailSubView.vue';
+import { Ref, ref } from 'vue';
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    keepAlive?: Ref<boolean>;
+  }
+}
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -17,24 +23,13 @@ const router = createRouter({
           path: '',
           name: 'list',
           component: ListView,
-          meta: {
-            keepAlive: true,
-          },
         },
         {
           path: 'detail',
           name: 'detail',
-          component: DetailView,
+          component: () => import('../views/DetailView.vue'),
           meta: {
-            keepAlive: true,
-            beforeRouteEnter(router, to, from) {
-              console.log(to);
-              router.getRoutes().forEach((item) => {
-                if (item.name === 'detail') {
-                  item.meta.keepAlive = to.name === 'detail-sub';
-                }
-              });
-            },
+            keepAlive: ref(false),
           },
         },
         {
